@@ -15,6 +15,12 @@ import router from './router'
 import '@/icons' // icon
 import '@/permission' // permission control
 
+//引入相关的API请求接口
+import API from '@/api'
+//组件实例的原型指向的是Vue.prototype
+//任意组件可以使用API相关的接口
+Vue.prototype.$API = API
+
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
