@@ -27,7 +27,7 @@
       <el-table-column label="操作" width="width">
         <template slot-scope="{row}">
           <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateTradeMark(row)">修改</el-button>
-          <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteTradeMark">删除</el-button>
+          <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteTradeMark(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -146,7 +146,8 @@ export default {
   },
   methods: {
     // 获取品牌列表的数据
-    async getPageList() {    
+    async getPageList(pager = 1) {   
+      this.page = pager; 
       // 解构出参数
       const { page, limit } = this
       // 获取品牌列表的接口
@@ -162,7 +163,7 @@ export default {
     handleCurrentChange(pager){
       //修改参数
       this.page = pager;
-      this.getPageList();
+      this.getPageList(this.page);
     },
     // pageSize 改变时会触发，默认传入选择的每页展示的条数
     handleSizeChange(limit){
@@ -174,7 +175,6 @@ export default {
       this.dialogFormVisible = true;
       // 清除数据
       this.tmForm = {logoUrl: '',tmName: ''}
-      this.page = 1;
     },
     // 修改某一个品牌
     updateTradeMark(row){
@@ -184,7 +184,6 @@ export default {
       // 将已有的品牌信息赋值给tmForm进行展示
       // 为了防止修改表格数据，展示列表也跟着修改，需要使用浅拷贝，这样数据就不相互干扰
       this.tmForm = {...row};
-
     },
     // 上传图片成功的回调
     handleAvatarSuccess(res, file) {
@@ -222,7 +221,7 @@ export default {
             });
             // 添加或者修改品牌成功以后，再次获取品牌列表进行展示
             // 如果添加品牌：停留在第一页；修改品牌停留在当前页面
-            this.getPageList();
+            this.getPageList(this.tmForm.id ? this.page : 1);
           }
         }else{
           //表单验证失败
@@ -230,6 +229,34 @@ export default {
           return false
         }
       })
+    },
+    // 删除品牌的信息
+    deleteTradeMark(row){
+      this.$confirm(`确定删除${row.tmName}吗？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        // 当用户点击确定按钮的时候触发
+        //向服务器发送请求
+        let result = await this.$API.trademark.reqDeleteTradeMark(row.id);
+        //删除成功
+        if(result.code == 200){
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+          //再次获取品牌列表数据
+          this.getPageList(this.list.length > 1 ? this.page : this.page-1);
+        }
+       
+      }).catch(() => {
+        // 当用户点击取消按钮的时候触发
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });          
+      });
     }
   }
 }
