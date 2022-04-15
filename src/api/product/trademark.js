@@ -3,7 +3,7 @@ import request from '@/utils/request'
 
 // 获取品牌管理列表接口
 // /admin/product/baseTrademark/{page}/{limit} get
-export const reqTradeMarkList = (page,limit)=>request({
+export const reqTradeMarkList = (page, limit) => request({
     url: `/admin/product/baseTrademark/${page}/${limit}`,
     method: 'GET'
 })
@@ -16,16 +16,16 @@ export const reqTradeMarkList = (page,limit)=>request({
 // /admin/product/baseTrademark/update put 携带三个参数:id、品牌名称、品牌logo
 // 切记：对于修改一个品牌的操作，前端携带的参数要带上id，你需要告诉服务器修改的是哪一个品牌
 
-export const reqAddOrUpdateTradeMark = (trademark)=>{
-    //带给服务器的数据携带Id---修改
-    if(trademark.id){
+export const reqAddOrUpdateTradeMark = (trademark) => {
+    // 带给服务器的数据携带Id---修改
+    if (trademark.id) {
         return request({
             url: '/admin/product/baseTrademark/update',
             method: 'PUT',
             data: trademark
         })
-    }else{
-        //添加(新增)品牌
+    } else {
+        // 添加(新增)品牌
         return request({
             url: '/admin/product/baseTrademark/save',
             method: 'POST',

@@ -59,32 +59,32 @@ export const constantRoutes = [
     path: '/product',
     component: Layout,
     name: 'Product',
-    meta: {title: '商品管理', icon: 'el-icon-goods'},
+    meta: { title: '商品管理', icon: 'el-icon-goods' },
     children: [
       {
         path: 'trademark',
         name: 'TradeMark',
         component: () => import('@/views/product/TradeMark'),
-        meta: {title: '品牌管理'}
+        meta: { title: '品牌管理' }
       },
       {
         path: 'attr',
         name: 'Attr',
         component: () => import('@/views/product/Attr'),
-        meta: {title: '平台属性管理'}
+        meta: { title: '平台属性管理' }
       },
       {
         path: 'spu',
         name: 'Spu',
         component: () => import('@/views/product/Spu'),
-        meta: {title: 'Spu管理'}
+        meta: { title: 'Spu管理' }
       },
       {
         path: 'sku',
         name: 'Sku',
         component: () => import('@/views/product/Sku'),
-        meta: {title: 'Sku管理'}
-      },
+        meta: { title: 'Sku管理' }
+      }
     ]
   },
 
