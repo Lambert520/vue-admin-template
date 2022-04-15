@@ -27,7 +27,7 @@
       <el-table-column label="操作" width="width">
         <template slot-scope="{row}">
           <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateTradeMark(row)">修改</el-button>
-          <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+          <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteTradeMark">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
