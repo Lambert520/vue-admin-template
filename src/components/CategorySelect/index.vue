@@ -3,7 +3,7 @@
     <!--
         :inline：代表行内表单，代表一行可以放置多个表单元素
     -->
-    <el-form :inline="true"  class="demo-form-inline" :model="cForm">
+    <el-form :inline="true"  class="demo-form-inline" :model="cForm" :disabled="!isShowTable">
       <el-form-item label="一级分类">
         <el-select  placeholder="请选择" v-model="cForm.category1Id" @change="handlecg1">
           <el-option :label="cg1.name" :value="cg1.id" v-for="cg1 in category1List" :key="cg1.id"></el-option>
@@ -42,6 +42,7 @@ export default {
           category3List: []
       }
   },
+  props:['isShowTable'],
   // 组件挂载完毕，向服务器发请求，获取相应的一级分类数据
   mounted () {
       this.getCategory1List()
@@ -91,7 +92,7 @@ export default {
         const {category3Id} = this.cForm
         this.$emit('getCategoryId',{categoryId: category3Id,level: 3})
       }
-  }
+  },
 };
 </script>
 

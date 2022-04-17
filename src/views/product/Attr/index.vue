@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card style="margin: 20px 0px">
-      <CategorySelect @getCategoryId="getCategoryId"></CategorySelect>
+      <CategorySelect @getCategoryId="getCategoryId" :isShowTable="isShowTable"></CategorySelect>
     </el-card>
     <el-card>
       <div v-show="isShowTable">
@@ -17,7 +17,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="prop" label="操作" width="150">
-            <template slot-scope="{row,$index}">
+            <template slot-scope="{row}">
               <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateAttr(row)"></el-button>
               <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
             </template>
@@ -37,17 +37,21 @@
           <el-table-column type="index" align="center" label="序号" width="80">
           </el-table-column>
           <el-table-column prop="prop" label="属性值名称" width="width">
-            <template slot-scope="{row,$index}">
-              <el-input v-model="row.valueName" placeholder="请输入属性值名称" size="mini"></el-input>
+            <template slot-scope="{row}">
+               <!--这里的结构需要用到span与input进行切换-->
+              <el-input v-model="row.valueName" placeholder="请输入属性值名称" size="mini" ref="edit" v-if="row.flag" @keyup.native.enter="toLook(row)" @blur="toLook(row)"></el-input>
+              <span v-else @click="toEdit(row)" style="display:block">{{row.valueName}}</span>
             </template>
           </el-table-column>
           <el-table-column prop="prop" label="操作" width="width">
-            <template slot-scope="{row}">
-              <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+            <template slot-scope="{row,$index}">
+              <el-popconfirm :title="`确定删除${row.valueName}吗？`" @onConfirm="deleteAttrValue($index)">
+                <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini"></el-button>
+              </el-popconfirm>     
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="addOrUpdateAttrInfo" :disabled="attrInfo.attrValueList.length < 1">保存</el-button>
         <el-button @click="isShowTable = !isShowTable">取消</el-button>
       </div>
     </el-card>
@@ -118,11 +122,17 @@ export default {
       // valueName：相应属性值的名称
 
       this.attrInfo.attrValueList.push({
-        attrId: undefined,
-        valueName: ''
+        // 对于修改某一个属性的时候，可以在已有的属性值基础上新增新的属性值(新增的属性值，需要把已有的id带上)
+        attrId: this.attrInfo.id, 
+        valueName: '',
+        // flag属性(响应式属性)：给每个属性值添加一个标记flag，用户切换查看|编辑模式（每一个属性值可以控制自己的模式切换）
+        flag: true
+      })
+      this.$nextTick(()=>{
+        this.$refs.edit.focus()
       })
     },
-    // 添加属性按钮的回调
+    // 第一个table 添加属性按钮的回调
     addAttr(){
       // 切换table显示与隐藏
       this.isShowTable = false
@@ -143,6 +153,77 @@ export default {
       // 由于数据结构当中存在对象里面套数组，数组里面又套对象，浅拷贝不起作用
       // 需要使用深拷贝（浅拷贝只能拷贝浅层次的对象，不能拷贝深层次的对象）
       this.attrInfo = cloneDeep(row);
+      // 在修改某一个属性的时候，将相应的属性值元素添加上flag这个属性
+      this.attrInfo.attrValueList.forEach(item=>{
+        // 需要添加响应式的数据，保证视图跟着数据变化
+        // 1：对象  2：添加新的响应式属性 3：新的属性的属性值
+        this.$set(item,'flag',false)
+      })
+    },
+    // 失去焦点的事件----切换为查看模式，展示span
+    toLook(row){
+      // row：是当前用户添加的最新属性值
+      // 如果属性值为空，是不能作为新的属性，给用户提示输入一个其他的属性值
+      if(row.valueName.trim()==''){
+        this.$message('属性值不能为空')
+        return
+      }
+      // 新增的属性值不能与已有的属性值相同 
+      let isRepeat = this.attrInfo.attrValueList.some(item=>{
+        // 将row从数组里面判断的时候去除【最后一个数据】
+        if(row!==item){
+          return row.valueName == item.valueName
+        }
+      })
+      if(isRepeat){
+        this.$message('属性值不能重复')
+        return
+      }
+      // 将当前编辑模式变为查看模式【input消失、span出现】
+      row.flag = false
+    },
+    // 点击span的回调，变为编辑模式
+    toEdit(row){
+      row.flag = true
+      // 获取input节点，实现自动聚焦效果
+      // 注意：点击span的时候，切换为编辑模式(input)，对于浏览器而言，页面的重绘与重排是耗时间的，不能立马获取到input
+      this.$nextTick(()=>{
+        // 获取相应的input表单元素实现聚焦
+        this.$refs.edit.focus()
+      })
+    },
+    // 气泡确认框 确定按钮的回调
+    // 最新版本elementUI----2.15.6 目前模板中的2.13.2，气泡确认触发的事件是onConfirm
+    deleteAttrValue(index){
+      // 当前删除属性的操作是不需要发请求的
+      this.attrInfo.attrValueList.splice(index,1);
+    },
+    // 保存按钮，进行添加属性或者修改属性的操作
+    async addOrUpdateAttrInfo(){
+      // 整理参数：1.如果用户添加很多属性值，且属性值为空，不应该提交给服务器
+      // 2.提交给服务器的数据当中不应该出现flag字段
+      this.attrInfo.attrValueList  = this.attrInfo.attrValueList.filter((item)=>{
+        // 过滤掉属性值不是空的
+        if(item.valueName != ''){
+          // 删除掉flag属性
+          delete item.flag
+          return true
+        }
+      })
+      try {
+        // 发请求
+        await this.$API.attr.reqAddOrUpdateAttrInfo(this.attrInfo)
+        // 展示平台属性的信号量进行切换
+        this.isShowTable = true;
+        this.$message({
+          type: 'success',
+          message: '保存成功'
+        })
+        // 保存成功以后 需要再次获取平台属性进行展示
+        this.getAttrList();
+      } catch (error) {
+        this.$message('保存失败')
+      }    
     }
   },
 };
