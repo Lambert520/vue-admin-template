@@ -6,7 +6,7 @@
     </el-card>
     <el-card>
       <!--底部这里将来是有三部分进行切换-->
-      <div v-show="scene==1">
+      <div v-show="scene==0">
         <!--展示Spu列表的结构-->
         <el-button type="primary" icon="el-icon-plus" size="small" :disabled="!category3Id" @click="addSpu">添加SPU</el-button>
         <el-table  :data="records" style="width: 100%" border>
@@ -30,7 +30,7 @@
           </el-table-column>
         </el-table>
       </div>
-      <SpuForm v-show="scene==0"></SpuForm>
+      <SpuForm v-show="scene==1" @changeScene="changeScene" ref="spu"></SpuForm>
       <SkuForm v-show="scene==2"></SkuForm>
       <!--分页器-->
       <el-pagination
@@ -116,7 +116,13 @@ export default {
     },
     // 修改spu按钮的回调
     updateSpu(row){
+      // 获取SpuForm子组件的方法
+      this.$refs.spu.initSpuData(row)
       this.scene = 1
+    },
+    // 
+    changeScene(scene){
+      this.scene = scene
     }
   },
 };
