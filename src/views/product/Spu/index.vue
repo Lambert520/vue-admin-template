@@ -30,7 +30,7 @@
           </el-table-column>
         </el-table>
       </div>
-      <SpuForm v-show="scene==1" @changeScene="changeScene" ref="spu"></SpuForm>
+      <SpuForm v-show="scene==1" @changeScene="changeScene" ref="spu" :isShowTable="isShowTable"></SpuForm>
       <SkuForm v-show="scene==2"></SkuForm>
       <!--分页器-->
       <el-pagination
@@ -113,12 +113,14 @@ export default {
     // 添加spu按钮的回调
     addSpu(){
       this.scene = 1
+      // this.isShowTable = false
     },
     // 修改spu按钮的回调
     updateSpu(row){
       // 获取SpuForm子组件的方法
       this.$refs.spu.initSpuData(row)
       this.scene = 1
+      // this.isShowTable = false
     },
     // 
     changeScene(scene){
