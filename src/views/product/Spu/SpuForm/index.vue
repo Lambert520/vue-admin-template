@@ -19,10 +19,11 @@
           on-remove：当删除图片的时候会触发 file-list：上传的文件列表
           -->
         <el-upload
-          action="dev-api/admin/product/fileUpload"
+          action="/dev-api/admin/product/fileUpload"
           list-type="picture-card"
           :on-preview="handlePictureCardPreview"
           :on-remove="handleRemove"
+          :on-success="handleSuccess"
           :file-list="spuImageList">
           <i class="el-icon-plus"></i>
         </el-upload>
@@ -31,10 +32,10 @@
         </el-dialog>
       </el-form-item>
       <el-form-item label="销售属性">
-        <el-select placeholder="还有3未选择" value>
-          <el-option label="label" value="value" ></el-option>
+        <el-select :placeholder="`还有${unSelectedSaleAttr.length}未选择`" v-model="attrIdAndAttrName">
+          <el-option :label="unselect.name" :value="`${unselect.id}:${unselect.name}`" v-for="unselect in unSelectedSaleAttr" :key="unselect.id"></el-option>
         </el-select>
-        <el-button type="primary" icon="el-icon-plus" size="small">添加销售属性</el-button>
+        <el-button type="primary" icon="el-icon-plus" size="small" :disabled="!attrIdAndAttrName" @click="addSaleAttr">添加销售属性</el-button>
         <!--展示的是当前Spu属于自己的销售属性-->
         <el-table style="width: 100%" border :data="spu.spuSaleAttrList">
           <el-table-column type="index" label="序号" width="80" align="center">
@@ -43,11 +44,9 @@
           </el-table-column>
           <el-table-column prop="prop" label="属性名称列表" width="width">          
              <!--
-               @close="handleClose(tag)"
-               
-                
-                @keyup.enter.native="handleInputConfirm"
-                @blur="handleInputConfirm">
+              @close="handleClose(tag)"             
+              @keyup.enter.native="handleInputConfirm"
+              @blur="handleInputConfirm">
              -->
             <template slot-scope="{row}">
               <el-tag :key="tag.id" v-for="tag in row.spuSaleAttrValueList" closable :disable-transitions="false" >
@@ -59,8 +58,9 @@
                 v-if="row.inputVisible"
                 v-model="row.inputValue"
                 ref="saveTagInput"
-                size="small">
-               
+                size="small"
+                
+              >
               </el-input>
               <el-button v-else class="button-new-tag" size="small" >添加</el-button>
             </template>
@@ -73,8 +73,8 @@
         </el-table>
       </el-form-item>
       <el-form-item> 
-          <el-button type="primary">保存</el-button>
-          <el-button @click="$emit('changeScene',0)">取消</el-button>
+        <el-button type="primary">保存</el-button>
+        <el-button @click="$emit('changeScene',0)">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -132,15 +132,26 @@ export default {
       tradeMarkList: [],// 存储品牌信息
       spuImageList: [],// 存储spu图片的数据
       saleAttrList: [],// 销售属性的数据
+      attrIdAndAttrName: '',// 收集未选择销售属性的id
     };
   },
   methods: {
+    // 照片墙删除某一个图片的时候触发 
     handleRemove(file, fileList) {
-      console.log(file, fileList);
+      // file：当前删除的图片；fileList：删除图片后剩余的图片
+      // 收集照片墙的数据
+      // 已有的图片【有name与url字段】，照片墙显示需要有这两个属性，而服务器不需要，上传服务器时需要删掉
+      this.spuImageList = fileList
     },
+    // 照片墙预览功能的回调
     handlePictureCardPreview(file) {
+      // 将图片地址赋值给属性
       this.dialogImageUrl = file.url;
       this.dialogVisible = true;
+    },
+    // 照片上传成功的回调
+    handleSuccess(response, file, fileList){
+      this.spuImageList = fileList
     },
     // 初始化SpuForm数据
     async initSpuData(spu){
@@ -172,11 +183,34 @@ export default {
       if(saleResult.code == 200){
         this.saleAttrList = saleResult.data
       }
+    },
+    // 添加新的销售属性
+    addSaleAttr(){
+      // 已经收集到 需要添加销售属性的消息
+      // 把收集到的销售属性数据进行分割
+      const [baseSaleAttrId, saleAttrName] = this.attrIdAndAttrName.split(':')
+      // 向Spu对象的spuSaleAttrValueList属性里面添加新的销售属性
+      let newSaleAttr = {
+        baseSaleAttrId,
+        saleAttrName,
+        spuSaleAttrValueList: []
+      }
+      // 添加新的销售属性
+      this.spu.spuSaleAttrList.push(newSaleAttr)
     }
-
   },
   computed: {
-    // 计算出 
+    // 计算出还没选择的销售属性
+    unSelectedSaleAttr(){
+      // 当前Spu拥有的销售属性spu.spuSaleAttrList
+      // 数组过滤的方法：可以从已有的数组当中，过滤出用户想要的元素
+      return this.saleAttrList.filter((item)=>{
+        // every是数组的方法，返回一个布尔值,，此处不能用some方法
+        return this.spu.spuSaleAttrList.every((item1)=>{
+          return item.name!=item1.saleAttrName
+        })
+      })
+    }
   }
 };
 </script>
