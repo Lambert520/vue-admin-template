@@ -2,7 +2,7 @@
   <div>
     <el-card style="margin: 20px 0px">
       <!--三级联动已经是全局组件了-->
-      <CategorySelect @getCategoryId="getCategoryId" :isShowTable="isShowTable"></CategorySelect>
+      <CategorySelect @getCategoryId="getCategoryId" :isShowTable="scene==0"></CategorySelect>
     </el-card>
     <el-card>
       <!--底部这里将来是有三部分进行切换-->
@@ -30,7 +30,7 @@
           </el-table-column>
         </el-table>
       </div>
-      <SpuForm v-show="scene==1" @changeScene="changeScene" ref="spu" :isShowTable="isShowTable"></SpuForm>
+      <SpuForm v-show="scene==1" @changeScene="changeScene" ref="spu"></SpuForm>
       <SkuForm v-show="scene==2"></SkuForm>
       <!--分页器-->
       <el-pagination
@@ -63,8 +63,6 @@ export default {
       category1Id: "",
       category2Id: "",
       category3Id: "",
-      // 控制三级联动的可操作性
-      isShowTable: true,
       page: 1,// 分页器当前第几页
       limit: 3,// 每一页展示多少条数据
       records: [],// spu列表的数据
@@ -113,14 +111,12 @@ export default {
     // 添加spu按钮的回调
     addSpu(){
       this.scene = 1
-      // this.isShowTable = false
     },
     // 修改spu按钮的回调
     updateSpu(row){
       // 获取SpuForm子组件的方法
       this.$refs.spu.initSpuData(row)
       this.scene = 1
-      // this.isShowTable = false
     },
     // 
     changeScene(scene){

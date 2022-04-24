@@ -43,13 +43,11 @@
           <el-table-column prop="saleAttrName" label="属性名" width="width">
           </el-table-column>
           <el-table-column prop="prop" label="属性名称列表" width="width">          
-             <!--
-              @close="handleClose(tag)"             
-              @keyup.enter.native="handleInputConfirm"
-              @blur="handleInputConfirm">
-             -->
+             <!--属性值列表-->
             <template slot-scope="{row}">
-              <el-tag :key="tag.id" v-for="tag in row.spuSaleAttrValueList" closable :disable-transitions="false" >
+              <!--el-tag：展示已有的属性值-->
+              <el-tag :key="tag.id" v-for="(tag,index) in row.spuSaleAttrValueList" closable :disable-transitions="false" 
+                @close="handleClose(row,index)">
                 {{tag.saleAttrValueName}}
               </el-tag>
               <!--下面的结构是input与button切换-->
@@ -59,15 +57,16 @@
                 v-model="row.inputValue"
                 ref="saveTagInput"
                 size="small"
-                
+                @blur="handleInputConfirm(row)"
+                @keyup.enter.native="handleInputConfirm(row)"
               >
               </el-input>
-              <el-button v-else class="button-new-tag" size="small" >添加</el-button>
+              <el-button v-else class="button-new-tag" size="small" @click="addSaleAttrValue(row)" >添加</el-button>
             </template>
           </el-table-column>
           <el-table-column prop="prop" label="操作" width="width">
-            <template slot-scope="{row}">
-              <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+            <template slot-scope="{row,$index}">
+              <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteSaleAttr(row,$index)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -83,7 +82,6 @@
 <script>
 export default {
   name: "SpuForm",
-  props: ['isShowTable'],
   data() {
     return {
       dialogImageUrl: "",
@@ -159,6 +157,7 @@ export default {
       let spuResult = await this.$API.spu.reqSpuBaseInfo(spu.id)
       if(spuResult.code == 200){
         this.spu = spuResult.data
+
       }
       // 获取品牌的信息
       let tradeMarkResult = await this.$API.spu.reqTradeMarkList()
@@ -197,7 +196,92 @@ export default {
       }
       // 添加新的销售属性
       this.spu.spuSaleAttrList.push(newSaleAttr)
-    }
+      // 
+      this.attrIdAndAttrName = ''
+    },
+    // 添加按钮的回调
+    addSaleAttrValue(row){
+      // 点击销售属性值当中添加按钮的时候，需要由button变为input，通过当前销售属性的inputVisible控制
+      // 挂载在销售属性身上的响应式数据inputVisible，控制button与input切换
+      this.$set(row,'inputVisible',true)
+      // 通过响应式数据inputValue字段收集新增的
+      this.$set(row,'inputValue','')
+    },
+    // 失去焦点事件
+    handleInputConfirm(row){
+      // 解构出销售属性当中收集的数据 
+      const {baseSaleAttrId, inputValue} = row
+      // 新增的销售属性值名称不为空
+      if(inputValue.trim()==''){
+        this.$message({
+          type: 'warning',
+          message: '属性值不能为空'
+        })
+        return
+      }
+      // 新增的属性值不能重复
+      let result = row.spuSaleAttrValueList.some((item)=>{
+        return item.saleAttrValueName==inputValue.trim()
+      })
+      if(result){
+        this.$message({
+          type: 'warning',
+          message: '属性值重复'
+        })
+        return
+      }
+      // 新增销售属性值的数据
+      let newSaleAttrValue = {
+        baseSaleAttrId,
+        saleAttrValueName: inputValue
+      }
+      // 添加到属性值数组中
+      row.spuSaleAttrValueList.push(newSaleAttrValue)
+      // 修改inputVisible为false，显示button
+      row.inputVisible = false
+      
+    },
+    // enter键事件(与blur事件一样)
+    handleInputConfirm(row){
+      // 解构出销售属性当中收集的数据 
+      const {baseSaleAttrId, inputValue} = row
+      // 新增的销售属性值名称不为空
+      if(inputValue.trim()==''){
+        this.$message({
+          type: 'warning',
+          message: '属性值不能为空'
+        })
+        return
+      }
+      // 新增的属性值不能重复
+      let result = row.spuSaleAttrValueList.some((item)=>{
+        return item.saleAttrValueName==inputValue.trim()
+      })
+      if(result){
+        this.$message({
+          type: 'warning',
+          message: '属性值重复'
+        })
+        return
+      }
+      // 新增销售属性值的数据
+      let newSaleAttrValue = {
+        baseSaleAttrId,
+        saleAttrValueName: inputValue
+      }
+      // 添加到属性值数组中
+      row.spuSaleAttrValueList.push(newSaleAttrValue)
+      // 修改inputVisible为false，显示button
+      row.inputVisible = false
+    },
+    // 删除属性值标签的事件回调
+    handleClose(row,index){
+      row.spuSaleAttrValueList.splice(index,1)
+    },
+    // 删除属性的事件回调
+    deleteSaleAttr(row,index){
+      this.spu.spuSaleAttrList.splice(index,1)
+    },
   },
   computed: {
     // 计算出还没选择的销售属性
