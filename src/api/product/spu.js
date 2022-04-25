@@ -35,3 +35,22 @@ export const reqBaseSaleAttrList = ()=>request({
     url: '/admin/product/baseSaleAttrList',
     method: 'GET'
 })
+
+// 修改Spu|添加Spu：对于修改或添加，携带给服务器的参数大致是一样的，唯一的区别就是携带的参数是否携带Id
+// /admin/product/updateSpuInfo post /admin/product/saveSpuInfo post  
+export const reqAddOrUpdateSpu = (spuInfo)=>{
+    // 如果携带的参数有id ----修改spu
+    if(spuInfo.id){
+        return request({
+            url: '/admin/product/updateSpuInfo',
+            method: 'POST',
+            data: spuInfo
+        })
+    }else{
+        return request({
+            url: '/admin/product/saveSpuInfo',
+            method: 'POST',
+            data: spuInfo
+        })
+    }
+}

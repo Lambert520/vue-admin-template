@@ -72,7 +72,7 @@
         </el-table>
       </el-form-item>
       <el-form-item> 
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="addOrUpdateSpu">保存</el-button>
         <el-button @click="$emit('changeScene',0)">取消</el-button>
       </el-form-item>
     </el-form>
@@ -109,22 +109,22 @@ export default {
         ],
         // 平台属性与属性值收集   
         spuSaleAttrList: [
-          {
-            baseSaleAttrId: 0,
-            "id": 0,
-            saleAttrName: "string",
-            spuId: 0,
-            spuSaleAttrValueList: [
-              {
-                baseSaleAttrId: 0,
-                "id": 0,
-                isChecked: "string",
-                saleAttrName: "string",
-                saleAttrValueName: "string",
-                spuId: 0
-              }
-            ]
-          }
+          // {
+          //   baseSaleAttrId: 0,
+          //   "id": 0,
+          //   saleAttrName: "string",
+          //   spuId: 0,
+          //   spuSaleAttrValueList: [
+          //     {
+          //       baseSaleAttrId: 0,
+          //       "id": 0,
+          //       isChecked: "string",
+          //       saleAttrName: "string",
+          //       saleAttrValueName: "string",
+          //       spuId: 0
+          //     }
+          //   ]
+          // }
         ]
       },// 存储Spu信息属性
       tradeMarkList: [],// 存储品牌信息
@@ -207,7 +207,7 @@ export default {
       // 通过响应式数据inputValue字段收集新增的
       this.$set(row,'inputValue','')
     },
-    // 失去焦点事件
+    // 失去焦点事件与键盘enter事件
     handleInputConfirm(row){
       // 解构出销售属性当中收集的数据 
       const {baseSaleAttrId, inputValue} = row
@@ -241,39 +241,6 @@ export default {
       row.inputVisible = false
       
     },
-    // enter键事件(与blur事件一样)
-    handleInputConfirm(row){
-      // 解构出销售属性当中收集的数据 
-      const {baseSaleAttrId, inputValue} = row
-      // 新增的销售属性值名称不为空
-      if(inputValue.trim()==''){
-        this.$message({
-          type: 'warning',
-          message: '属性值不能为空'
-        })
-        return
-      }
-      // 新增的属性值不能重复
-      let result = row.spuSaleAttrValueList.some((item)=>{
-        return item.saleAttrValueName==inputValue.trim()
-      })
-      if(result){
-        this.$message({
-          type: 'warning',
-          message: '属性值重复'
-        })
-        return
-      }
-      // 新增销售属性值的数据
-      let newSaleAttrValue = {
-        baseSaleAttrId,
-        saleAttrValueName: inputValue
-      }
-      // 添加到属性值数组中
-      row.spuSaleAttrValueList.push(newSaleAttrValue)
-      // 修改inputVisible为false，显示button
-      row.inputVisible = false
-    },
     // 删除属性值标签的事件回调
     handleClose(row,index){
       row.spuSaleAttrValueList.splice(index,1)
@@ -282,6 +249,29 @@ export default {
     deleteSaleAttr(row,index){
       this.spu.spuSaleAttrList.splice(index,1)
     },
+    // 保存按钮的回调
+    async addOrUpdateSpu(){
+      // 整理参数：整理照片墙的数据
+      // 携带参数：对于图片，要携带imageName与imageUrl字段
+      // 下面的方法是只保留了imageName与imageUrl（map：为每个数组元素调用函数的结果创建新数组）
+      this.spu.spuImageList = this.spuImageList.map(item=>{
+        return {
+          imageName: item.name,
+          imageUrl: (item.response)?item.response.data:item.url
+        }
+      })
+      // 发请求
+      let result = await this.$API.spu.reqAddOrUpdateSpu(this.spu)
+      if(result.code == 200){
+        // 提示：保存成功
+        this.$message({
+          type: 'success',
+          message: '保存成功'
+        })
+        // 通知父组件回到场景0
+        this.$emit('changeScene',0)
+      }
+    }
   },
   computed: {
     // 计算出还没选择的销售属性
