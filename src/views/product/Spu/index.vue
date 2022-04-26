@@ -25,7 +25,9 @@
               <hint-button type="success" icon="el-icon-plus" size="mini" title="添加sku"></hint-button>
               <hint-button type="warning" icon="el-icon-edit" size="mini" title="修改spu" @click="updateSpu(row)"></hint-button>
               <hint-button type="info" icon="el-icon-info" size="mini" title="查看当前spu全部sku列表"></hint-button>
-              <hint-button type="danger" icon="el-icon-delete" size="mini" title="删除spu"></hint-button>
+              <el-popconfirm title="这是一段内容确定删除吗？" @onConfirm="deleteSpu(row)">
+                <hint-button slot="reference" type="danger" icon="el-icon-delete" size="mini" title="删除spu"></hint-button>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -67,7 +69,8 @@ export default {
       limit: 3,// 每一页展示多少条数据
       records: [],// spu列表的数据
       total: 0,// 分页器一共需要展示数据的条数
-      scene: 0// 0：代表展示spu列表数据 1：添加spu|修改spu 3：添加sku
+      scene: 0,// 0：代表展示spu列表数据 1：添加spu|修改spu 3：添加sku
+      flag: ''
     };
   },
   methods: {
@@ -110,7 +113,10 @@ export default {
     },
     // 添加spu按钮的回调
     addSpu(){
+      // 切换为场景1
       this.scene = 1
+      // 通知子组件SpuForm发请求----两个
+      this.$refs.spu.addSpuData(this.category3Id)
     },
     // 修改spu按钮的回调
     updateSpu(row){
@@ -118,11 +124,29 @@ export default {
       this.$refs.spu.initSpuData(row)
       this.scene = 1
     },
-    // 
-    changeScene(scene){
+    // SpuForm组件自定义事件的回调
+    changeScene({scene,flag}){
+      // flag这个形参为了区分按钮是添加还是修改
+      this.flag = flag
       this.scene = scene
       // 子组件通知父组件切换场景，需要再次获取Spu列表的数据进行展示
-      this.getSpuList(this.page);
+      if(flag=='添加'){
+        this.getSpuList();
+      }else{
+        this.getSpuList(this.page);
+      }
+    },
+    // 删除Spu
+    async deleteSpu(row){
+      let result = await this.$API.spu.reqDeleteSpu(row.id)
+      if(result.code == 200){
+        this.$message({
+          type: 'success',
+          message: '删除成功'
+        })
+
+        this.getSpuList(this.records.length>1?this.page:this.page-1)
+      }
     }
   },
 };
