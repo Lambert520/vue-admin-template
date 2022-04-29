@@ -22,7 +22,7 @@
           <el-table-column prop="prop" label="操作" width="width">
             <template slot-scope="{row,$index}">
               <!--这里按钮将来用hintButton替换-->
-              <hint-button type="success" icon="el-icon-plus" size="mini" title="添加sku"></hint-button>
+              <hint-button type="success" icon="el-icon-plus" size="mini" title="添加sku" @click="addSku(row)"></hint-button>
               <hint-button type="warning" icon="el-icon-edit" size="mini" title="修改spu" @click="updateSpu(row)"></hint-button>
               <hint-button type="info" icon="el-icon-info" size="mini" title="查看当前spu全部sku列表"></hint-button>
               <el-popconfirm title="这是一段内容确定删除吗？" @onConfirm="deleteSpu(row)">
@@ -33,7 +33,7 @@
         </el-table>
       </div>
       <SpuForm v-show="scene==1" @changeScene="changeScene" ref="spu"></SpuForm>
-      <SkuForm v-show="scene==2"></SkuForm>
+      <SkuForm v-show="scene==2" ref="sku"></SkuForm>
       <!--分页器-->
       <el-pagination
         style="text-align: center"
@@ -139,7 +139,7 @@ export default {
     // 删除Spu
     async deleteSpu(row){
       let result = await this.$API.spu.reqDeleteSpu(row.id)
-      if(result.code == 200){
+      if (result.code == 200){
         this.$message({
           type: 'success',
           message: '删除成功'
@@ -147,6 +147,12 @@ export default {
 
         this.getSpuList(this.records.length>1?this.page:this.page-1)
       }
+    },
+    // 添加Sku
+    addSku(row){
+      this.scene = 2
+      // 父组件调用子组件的方法，让子组件发请求------三个请求
+      this.$refs.sku.getData(this.category1Id,this.category2Id,row)
     }
   },
 };
