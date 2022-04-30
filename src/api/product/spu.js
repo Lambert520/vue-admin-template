@@ -61,3 +61,27 @@ export const reqDeleteSpu = (spuId)=>request({
     url: `/admin/product/deleteSpu/${spuId}`,
     method: 'DELETE'
 })
+
+// Spu模块的Sku接口
+
+// 获取销售属性列表
+// /admin/product/spuSaleAttrList/{spuId} get
+export const reqSpuSaleAttrList = (spuId)=>request({
+    url: `/admin/product/spuSaleAttrList/${spuId}`,
+    method: 'GET'
+})
+
+// 获取属性信息
+// /admin/product/attrInfoList/{category1Id}/{category2Id}/{category3Id} get
+export const reqAttrInfoList = (category1Id,category2Id,category3Id)=>request({
+    url: `/admin/product/attrInfoList/${category1Id}/${category2Id}/${category3Id}`,
+    method: 'GET'
+})  
+
+// 保存信息
+// /admin/product/saveSkuInfo post
+export const reqAddSku = (skuInfo)=>request({
+    url: '/admin/product/saveSkuInfo',
+    method: 'POST',
+    data: skuInfo
+})

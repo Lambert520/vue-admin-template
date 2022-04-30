@@ -33,7 +33,7 @@
         </el-table>
       </div>
       <SpuForm v-show="scene==1" @changeScene="changeScene" ref="spu"></SpuForm>
-      <SkuForm v-show="scene==2" ref="sku"></SkuForm>
+      <SkuForm v-show="scene==2" ref="sku" @changeScenes="changeScenes"></SkuForm>
       <!--分页器-->
       <el-pagination
         style="text-align: center"
@@ -153,6 +153,10 @@ export default {
       this.scene = 2
       // 父组件调用子组件的方法，让子组件发请求------三个请求
       this.$refs.sku.getData(this.category1Id,this.category2Id,row)
+    },
+    // SkuForm通知父组件修改场景
+    changeScenes(scene){
+      this.scene = scene
     }
   },
 };
