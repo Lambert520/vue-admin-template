@@ -24,7 +24,7 @@
               <!--这里按钮将来用hintButton替换-->
               <hint-button type="success" icon="el-icon-plus" size="mini" title="添加sku" @click="addSku(row)"></hint-button>
               <hint-button type="warning" icon="el-icon-edit" size="mini" title="修改spu" @click="updateSpu(row)"></hint-button>
-              <hint-button type="info" icon="el-icon-info" size="mini" title="查看当前spu全部sku列表"></hint-button>
+              <hint-button type="info" icon="el-icon-info" size="mini" title="查看当前spu全部sku列表" @click="handler(row)"></hint-button>
               <el-popconfirm title="这是一段内容确定删除吗？" @onConfirm="deleteSpu(row)">
                 <hint-button slot="reference" type="danger" icon="el-icon-delete" size="mini" title="删除spu"></hint-button>
               </el-popconfirm>
@@ -45,6 +45,19 @@
         @current-change="handleCurrentChange"
         @size-change="handleSizeChange">
       </el-pagination>
+
+      <el-dialog :title="`${spu.spuName}的Sku列表`" :visible.sync="dialogTableVisible" :before-close="close">
+        <el-table :data="skuList" v-loading="loading">
+          <el-table-column property="skuName" label="名称" width="150"></el-table-column>
+          <el-table-column property="price" label="价格" width="200"></el-table-column>
+          <el-table-column property="weight" label="重量"></el-table-column>
+          <el-table-column property="prop" label="默认图片">
+            <template slot-scope="{row}">
+              <img :src="row.skuDefaultImg" style="width:100px;height:100px">
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -70,7 +83,11 @@ export default {
       records: [],// spu列表的数据
       total: 0,// 分页器一共需要展示数据的条数
       scene: 0,// 0：代表展示spu列表数据 1：添加spu|修改spu 3：添加sku
-      flag: ''
+      flag: '',
+      dialogTableVisible: false,
+      spu: {},
+      skuList: [],// 存储Sku列表的数据
+      loading: true
     };
   },
   methods: {
@@ -157,6 +174,28 @@ export default {
     // SkuForm通知父组件修改场景
     changeScenes(scene){
       this.scene = scene
+    },
+    // 查看Sku按钮的回调
+    async handler(spu){
+      // 点击这个按钮的时候，对话框是可见的
+      this.dialogTableVisible = true
+      // 保存Spu信息
+      this.spu = spu
+      // 获取Sku列表数据进行展示
+      let result = await this.$API.spu.reqSkuList(spu.id)
+      if (result.code == 200){
+        this.skuList = result.data
+        this.loading = false
+      }
+    },
+    // 关闭对话框的回调 
+    close(done){
+      // loading属性再次变为真
+      this.loading = true
+      // 清除Sku列表的数据
+      this.skuList = []
+      // 关闭对话框
+      done()
     }
   },
 };

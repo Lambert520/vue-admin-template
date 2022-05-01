@@ -33,7 +33,7 @@
         </el-form>
       </el-form-item>
       <el-form-item label="图片列表">
-        <el-table style="width: 100%" :data="spuImageList" @selection-change="handleSelectionChange">
+        <el-table style="width: 100%" :data="spuImageList" @selection-change="handleSelectionChange" border>
            <el-table-column type="selection"  width="80">
            </el-table-column>
           <el-table-column prop="prop" label="图片" width="width">
