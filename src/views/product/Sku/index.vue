@@ -60,7 +60,7 @@
         <el-col :span="16">
           <el-carousel height="150px">
             <el-carousel-item v-for="item in skuInfo.skuImageList" :key="item.id">
-              <img :src="item.imgUrl" style="width:280px;height:150px" />
+              <img :src="item.imgUrl" style="width:100%;height:150px" />
             </el-carousel-item>
           </el-carousel>
         </el-col>
@@ -163,22 +163,21 @@ export default {
   .el-carousel__item:nth-child(2n+1) {
      background-color: #d3dce6;
   }
-
-  /* 深度选择器 */
-  .el-carousel__button{
-    width: 10px;
-    height: 10px;
-    background: red;
-    border-radius: 50%;
-  }
 </style>
 
 <style scoped>
-  .el-row .el-row-5{
+  .el-row .el-col-5{
     font-size: 18px;
     text-align: right;
   }
   .el-col{
     margin: 10px 10px;
+  }
+  /* 深度选择器 >>>*/
+  >>>.el-carousel__button{
+    width: 10px;
+    height: 10px;
+    background: red;
+    border-radius: 50%;
   }
 </style>
