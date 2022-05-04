@@ -3,7 +3,7 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
-/* Layout */
+/* 引入最外层骨架的一级路由 */
 import Layout from '@/layout'
 
 /**
@@ -30,19 +30,21 @@ import Layout from '@/layout'
  * a base page that does not have permission requirements
  * all roles can be accessed
  */
+// 路由的配置：当前路由是‘死的’，不管谁登录，操作的菜单都是一样的
 export const constantRoutes = [
+  // 登录
   {
     path: '/login',
     component: () => import('@/views/login/index'),
     hidden: true
   },
-
+  // 404
   {
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true
   },
-
+  // 首页
   {
     path: '/',
     component: Layout,
@@ -54,7 +56,7 @@ export const constantRoutes = [
       meta: { title: '首页', icon: 'dashboard' }
     }]
   },
-
+  // 商品管理
   {
     path: '/product',
     component: Layout,
@@ -87,7 +89,53 @@ export const constantRoutes = [
       }
     ]
   },
-
+  // 权限管理
+  {
+    name: 'Acl',
+    path: '/acl',
+    component: Layout,
+    redirect: '/acl/user/list',
+    meta: {
+      title: '权限管理',
+      icon: 'el-icon-lock'
+    },
+    children: [
+      {
+        name: 'User',
+        path: 'user/list',
+        component: () => import('@/views/acl/user/list'),
+        meta: {
+          title: '用户管理'
+        }
+      },
+      {
+        name: 'Role',
+        path: 'role/list',
+        component: () => import('@/views/acl/role/list'),
+        meta: {
+          title: '角色管理'
+        }
+      },
+      {
+        name: 'RoleAuth',
+        path: 'role/auth/:id',
+        component: () => import('@/views/acl/role/roleAuth'),
+        meta: {
+          activeMenu: '/acl/role/list',
+          title: '角色授权'
+        },
+        hidden: true
+      },
+      {
+        name: 'Permission',
+        path: 'permission/list',
+        component: () => import('@/views/acl/permission/list'),
+        meta: {
+          title: '菜单管理'
+        }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
