@@ -31,6 +31,11 @@ import Layout from '@/layout'
  * all roles can be accessed
  */
 // 路由的配置：当前路由是‘死的’，不管谁登录，操作的菜单都是一样的
+/*
+  需要把项目中的路由进行拆分
+  1、常量路由：就是不管用户是什么角色，都可以看见的路由
+      登录、404、首页
+*/
 export const constantRoutes = [
   // 登录
   {
@@ -55,7 +60,12 @@ export const constantRoutes = [
       component: () => import('@/views/dashboard/index'),
       meta: { title: '首页', icon: 'dashboard' }
     }]
-  },
+  }
+]
+/*
+  2、异步路由：不同的用户（角色），需要通过过滤筛选出的路由
+ */
+export const asyncRoutes = [
   // 商品管理
   {
     path: '/product',
@@ -136,9 +146,11 @@ export const constantRoutes = [
       }
     ]
   },
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
 ]
+/*
+  3、任意路由：当路径出现错误的时候，重定向到404
+*/
+export const anyRoutes = { path: '*', redirect: '/404', hidden: true }
 
 const createRouter = () => new Router({
   // mode: 'history', // require service support
