@@ -7,7 +7,11 @@
       <el-table-column prop="skuDesc" label="描述" width="width"></el-table-column>
       <el-table-column label="默认图片" width="110">
         <template slot-scope="{row}">
-          <img :src="row.skuDefaultImg" style="width:80px;height:80px">
+          <!-- <img :src="row.skuDefaultImg" style="width:80px;height:80px"> -->
+          <el-image
+            style="width: 100px; height: 100px"
+            :src="row.skuDefaultImg"
+            ></el-image>
         </template>
       </el-table-column>
       <el-table-column prop="weight" label="重量" width="80"> </el-table-column>

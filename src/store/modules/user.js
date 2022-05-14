@@ -26,6 +26,7 @@ const getDefaultState = () => {
     // 用户最终需要展示全部路由
     resultAllRoutes: [],
     // 页面刷新，重新获取动态路由
+    statusChange: false
   }
 }
 
@@ -109,7 +110,7 @@ const actions = {
 
   // get user info----获取用户信息
   getInfo({ commit, state }) {
-
+    console.log('获取用户信息')
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
         /*

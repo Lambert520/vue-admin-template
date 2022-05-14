@@ -25,15 +25,17 @@ router.beforeEach(async(to, from, next) => {
       // if is logged in, redirect to the home page
       next({ path: '/' })
       NProgress.done()
-    } else {
+    } 
+    else {
       const hasGetUserInfo = store.getters.name
       if (hasGetUserInfo) {
         next()
       } else {
+        // 说明页面刷新了
         try {
           // get user info
-          await store.dispatch('user/getInfo')          
-          next()
+          await store.dispatch('user/getInfo')         
+          next(to.path)
         } catch (error) {
           // token失效
           // remove token and go to login page to re-login
@@ -46,7 +48,6 @@ router.beforeEach(async(to, from, next) => {
     }
   } else {
     /* has no token*/
-
     if (whiteList.indexOf(to.path) !== -1) {
       // in the free login whitelist, go directly
       next()

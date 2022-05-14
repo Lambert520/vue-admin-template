@@ -145,12 +145,12 @@ export const asyncRoutes = [
         }
       }
     ]
-  },
+  }
 ]
 /*
   3、任意路由：当路径出现错误的时候，重定向到404
 */
-export const anyRoutes = { path: '*', redirect: '/404', hidden: true }
+export const anyRoutes = [{ path: '*', redirect: '/404', hidden: true }]
 
 const createRouter = () => new Router({
   // mode: 'history', // require service support
@@ -165,5 +165,6 @@ export function resetRouter() {
   const newRouter = createRouter()
   router.matcher = newRouter.matcher // reset router
 }
+
 
 export default router
