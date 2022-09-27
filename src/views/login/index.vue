@@ -196,7 +196,7 @@ $light_gray:#eee;
   min-height: 100%;
   width: 100%;
   // background-color: $bg;
-  background: url(~@/assets/tsy.jpg) ;
+  background: url(~@/assets/fjz.jpg) ;
   background-size: 100% 100%;
   overflow: hidden;
 
