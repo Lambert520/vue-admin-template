@@ -1,30 +1,41 @@
 // 引入登录|退出登录|获取用户信息的接口函数
 import { login, logout, getInfo } from '@/api/user'
+
 // 获取token|设置token|删除token的函数
 import { getToken, setToken, removeToken } from '@/utils/auth'
+
 // 重置路由
 import { resetRouter, asyncRoutes, anyRoutes, constantRoutes } from '@/router'
+
 import router from '@/router'
 
 const getDefaultState = () => {
   return {
     // 获取token
     token: getToken(),
+
     // 存储用户名
     name: '',
+
     // 存储用户头像
     avatar: '',
+
     // 根据不同的角色，返回的标记信息，数组里面的元素是字符串
     // 菜单标记
     routes: [],
+
     // 按钮权限
     buttons: [],
+
     // 角色信息
     roles: [],
+
     // 对比之后，【项目中已有的异步路由，与服务器返回的标记信息进行对比，最终需要展示的路由】
     resultAsyncRoutes: [],
+
     // 用户最终需要展示全部路由
     resultAllRoutes: [],
+
     // 页面刷新，重新获取动态路由
     statusChange: false
   }
@@ -90,8 +101,10 @@ const actions = {
     if (result.code == 20000) {
       // vuex存储token
       commit('SET_TOKEN', result.data.token);
+      
       // 本地持久化存储token
       setToken(result.data.token);
+
       return Promise.resolve('ok');
     } else {
       return Promise.reject(new Error('fail'));
@@ -120,6 +133,7 @@ const actions = {
           buttons[按钮的信息：按钮权限用的标记]
         */
         const { data } = response
+        
         // vuex存储用户全部的信息
         commit('SET_USERINFO', data)
         commit('SET_RESULTASYNCROUTES', computedAsyncRoutes(asyncRoutes, data.routes))
