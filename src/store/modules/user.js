@@ -60,7 +60,7 @@ const mutations = {
     // vuex保存当前用户的异步路由，注意，一个用户需要展示完整的路由：常量、异步、任意路由
     state.resultAsyncRoutes = asyncRoutes
     // 计算出当前用户需要展示所有的路由
-    state.resultAllRoutes = constantRoutes.concat(state.resultAsyncRoutes,anyRoutes)
+    state.resultAllRoutes = constantRoutes.concat(state.resultAsyncRoutes, anyRoutes)
     // 给路由器添加新的路由
     router.addRoutes(state.resultAllRoutes)
   }
