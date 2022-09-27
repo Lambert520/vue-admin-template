@@ -17,23 +17,26 @@ export const constantRoutes = [
   // 登录
   {
     path: '/login',
+    name: 'Login',
     component: () => import('@/views/login/index'),
     hidden: true
   },
   // 404
   {
     path: '/404',
+    name: 'Error',
     component: () => import('@/views/404'),
     hidden: true
   },
   // 首页
   {
     path: '/',
+    name: 'Root',
     component: Layout,
     redirect: '/dashboard', //加不加 /都可以
     children: [{
       path: 'dashboard',
-      name: 'Dashboard',
+      name: 'DashBoard',
       component: () => import('@/views/dashboard/index'),
       meta: { title: '首页', icon: 'dashboard' }
     }]

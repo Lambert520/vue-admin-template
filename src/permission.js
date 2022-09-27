@@ -13,7 +13,7 @@ const whiteList = ['/login'] // no redirect whitelist
 router.beforeEach(async(to, from, next) => {
   // start progress bar
   NProgress.start()
-
+  console.log("全局前置路由守卫执行了");
   // set page title
   document.title = getPageTitle(to.meta.title)
 
@@ -50,10 +50,12 @@ router.beforeEach(async(to, from, next) => {
     /* has no token*/
     if (whiteList.indexOf(to.path) !== -1) {
       // in the free login whitelist, go directly
+      console.log("是登陆界面");
       next()
     } else {
       // other pages that do not have permission to access are redirected to the login page.
       next(`/login?redirect=${to.path}`)
+      console.log("不是登录界面");
       NProgress.done()
     }
   }

@@ -57,32 +57,43 @@ const mutations = {
   SET_USERINFO: (state, userInfo) => {
     // 用户名
     state.name = userInfo.name
+
     // 用户头像
     state.avatar = userInfo.avatar
+
     // 菜单按钮的标记
     state.routes = userInfo.routes
+    
     // 按钮权限的标记
     state.buttons = userInfo.buttons
+
     // 用户角色的信息
     state.roles = userInfo.roles
   },
   // 最终计算出来的异步路由
   SET_RESULTASYNCROUTES(state, asyncRoutes) {
+
     // vuex保存当前用户的异步路由，注意，一个用户需要展示完整的路由：常量、异步、任意路由
     state.resultAsyncRoutes = asyncRoutes
+
     // 计算出当前用户需要展示所有的路由
     state.resultAllRoutes = constantRoutes.concat(state.resultAsyncRoutes, anyRoutes)
-    // 给路由器添加新的路由
+    // state.resultAllRoutes = anyRoutes.concat(state.resultAsyncRoutes)
+
+    // 给路由器添加新的路由（若路由有 name配置，并且已经有一个与之名字相同的路由，它会先删除之前的路由）
     router.addRoutes(state.resultAllRoutes)
   }
 }
 
 // 定义一个函数：两个数组进行对比，对比出当前用户到底显示哪些异步路由
 const computedAsyncRoutes = (asyncRoutes, routes) => {
+
   // 过滤出当前用户需要展示的异步路由
   return asyncRoutes.filter(item => {
+
     // 数组当中没有这个元素，返回索引值 -1，有的话返回不是-1
     if (routes.indexOf(item.name) !== -1) {
+
       // 递归：别忘记还有2、3、4级路由
       if (item.children && item.children.length) {
         item.children = computedAsyncRoutes(item.children, routes)
@@ -93,12 +104,15 @@ const computedAsyncRoutes = (asyncRoutes, routes) => {
 }
 
 const actions = {
+
   // user login ---处理登录业务
   async login({ commit }, userInfo) {
+
     //解构出用户名与密码
     const { username, password } = userInfo
     let result = await login({ username: username.trim(), password: password })
     if (result.code == 20000) {
+      
       // vuex存储token
       commit('SET_TOKEN', result.data.token);
       
@@ -109,6 +123,8 @@ const actions = {
     } else {
       return Promise.reject(new Error('fail'));
     }
+
+    // Promise原始的实现方式
     // return new Promise((resolve, reject) => {
     //   login({ username: username.trim(), password: password }).then(response => {
     //     const { data } = response
@@ -147,7 +163,7 @@ const actions = {
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
+      logout().then(() => {
         removeToken() // must remove  token  first
         resetRouter()
         commit('RESET_STATE')
