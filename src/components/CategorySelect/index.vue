@@ -66,6 +66,7 @@ export default {
         // 解构出一级分类的id
         const {category1Id} = this.cForm
         this.$emit('getCategoryId',{categoryId: category1Id,level: 1})
+        
         // 通过一级分类的id获取二级分类的数据
         let result = await this.$API.attr.reqCategory2List(category1Id);
         if(result.code == 200){
