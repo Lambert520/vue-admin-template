@@ -15,7 +15,6 @@ router.beforeEach(async(to, from, next) => {
   NProgress.start()
 
   console.log("全局前置路由守卫执行了");
-  console.log(to.path)
 
   // set page title
   document.title = getPageTitle(to.meta.title)
