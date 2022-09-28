@@ -33,7 +33,7 @@ export const constantRoutes = [
     path: '/',
     name: 'Root',
     component: Layout,
-    redirect: '/dashboard', //加不加 /都可以
+    redirect: '/dashboard', //重定向发生在所有导航守卫之前
     children: [{
       path: 'dashboard',
       name: 'DashBoard',
